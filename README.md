@@ -1,2 +1,2 @@
-# group_activity
-this is a group activity example code of php
+### 基于thinkcmf5.1脚手架实现的商城小程序
+基于thinkcmf5.1管理后台，集成数据库迁移，接口实现商品下单，支付，拼团等。

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>ThinkCMF WebSocket Demo</title>
+    <link rel="stylesheet" type="text/css" href="__PLUGIN_TMPL__/public/assets/css/qq.css?v=1.0.4"/>
+    <script src="__PLUGIN_TMPL__/public/assets/js/vue.js"></script>
+    <script src="__PLUGIN_TMPL__/public/assets/js/websocketClient.js"></script>
+    <script src="__PLUGIN_TMPL__/public/assets/js/jquery-1.10.2.min.js"></script>
+    <style>
+        .RightCont{
+            height: 100px;
+            /*overflow-y: scroll;*/
+        }
+        ::-webkit-scrollbar {
+            -webkit-appearance: none;
+            width: 7px;
+        }
+        ::-webkit-scrollbar-thumb {
+            border-radius: 4px;
+            background-color: rgba(0,0,0,.5);
+            -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+        }
+    </style>
+</head>
+<body>
+
+<div id="app" class="qqBox">
+    <div class="BoxHead">
+        <div class="headImg">
+            <img src="__PLUGIN_TMPL__/public/assets/images/user_avatar.jpg">
+        </div>
+        <div class="internetName"><span style="float: left">90后大叔</span> <span style="float: right">在线({{count}})</span></div>
+    </div>
+    <div class="context">
+        <div class="conLeft">
+            <ul>
+                <li v-for="user in users">
+                    <div class="liLeft"><img src="__PLUGIN_TMPL__/public/assets/images/user_avatar.jpg"></div>
+                    <div class="liRight">
+                        <span class="intername">{{user.nickname}}</span>
+                        <span class="infor">厉害了</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="conRight">
+            <div class="Righthead">
+                <div class="headName">{{nickname}}</div>
+                <!--<div class="headConfig">-->
+                    <!--<ul>-->
+                        <!--<li><img src="img/20170926103645_06.jpg"></li>-->
+                        <!--<li><img src="img/20170926103645_08.jpg"></li>-->
+                        <!--<li><img src="img/20170926103645_10.jpg"></li>-->
+                        <!--<li><img src="img/20170926103645_12.jpg"></li>-->
+                    <!--</ul>-->
+                <!--</div>-->
+            </div>
+            <div class="RightCont" id="scrollbar-bottom">
+                <ul class="newsList" v-if="messages.length> 0 ">
+                    <template v-for="message in messages">
+                        <li v-if="user_id != message.message_id">
+                            <div class="nesHead"><img src="__PLUGIN_TMPL__/public/assets/images/user_avatar.jpg"></div>
+                            <div class="nesContent">
+                                <span>{{message.nickname}}</span>
+                                <div class="news">{{message.message}}</div>
+                            </div>
+                        </li>
+                        <li v-else>
+                            <div class="answerHead"><img src="__PLUGIN_TMPL__/public/assets/images/user_avatar.jpg"></div>
+                            <div class="answers">{{message.message}}</div>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+            <div class="RightFoot">
+                <!--<div class="emjon" style="display: none;">
+                    <ul>
+                        <li><img src="img/em_02.jpg"></li>
+                        <li><img src="img/em_05.jpg"></li>
+                        <li><img src="img/em_07.jpg"></li>
+                        <li><img src="img/em_12.jpg"></li>
+                        <li><img src="img/em_14.jpg"></li>
+                        <li><img src="img/em_16.jpg"></li>
+                        <li><img src="img/em_20.jpg"></li>
+                        <li><img src="img/em_23.jpg"></li>
+                        <li><img src="img/em_25.jpg"></li>
+                        <li><img src="img/em_30.jpg"></li>
+                        <li><img src="img/em_31.jpg"></li>
+                        <li><img src="img/em_33.jpg"></li>
+                        <li><img src="img/em_37.jpg"></li>
+                        <li><img src="img/em_38.jpg"></li>
+                        <li><img src="img/em_40.jpg"></li>
+                        <li><img src="img/em_45.jpg"></li>
+                        <li><img src="img/em_47.jpg"></li>
+                        <li><img src="img/em_48.jpg"></li>
+                        <li><img src="img/em_52.jpg"></li>
+                        <li><img src="img/em_54.jpg"></li>
+                        <li><img src="img/em_55.jpg"></li>
+                    </ul>
+                </div>-->
+                <div class="footTop">
+                   <!-- <ul>
+                        <li><img src="img/20170926103645_31.jpg"></li>
+                        <li class="ExP"><img src="img/20170926103645_33.jpg"></li>
+                        <li><img src="img/20170926103645_35.jpg"></li>
+                        <li><img src="img/20170926103645_37.jpg"></li>
+                        <li><img src="img/20170926103645_39.jpg"></li>
+                        <li><img src="img/20170926103645_41.jpg" alt=""></li>
+                        <li><img src="img/20170926103645_43.jpg"></li>
+                        <li><img src="img/20170926103645_45.jpg"></li>
+                    </ul>-->
+                </div>
+                <div class="inputBox">
+                    <textarea id="dope" style="width: 99%;height: 75px; border: none;outline: none;" v-model="message" @keyup.enter="sentMessage"></textarea>
+                    <button class="sendBtn"  v-on:click="sentMessage">发送(s)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<php>
+    $_request=request();
+</php>
+<script>
+    var client = null;
+    var $scrollbarBottom =$('#scrollbar-bottom');
+    var app = new Vue({
+            el: '#app',
+            data: {
+                user_id: '',
+                count: '',
+                nickname: '',
+                users: [],
+                message: 'Hello ThinkCMF!',
+                messages: []
+            },
+            methods: {
+                sentMessage: function () {
+                    if (this.message.trim()) {
+                        this.messages.push({
+                            'message_id':this.message_id,
+                            'nickname':this.nickname,
+                            'message':this.message,
+                        });
+                        client.emit("plugin/chat_demo/index/send", {
+                            "url": "plugin/chat_demo/index/send",
+                            "arguments": { //客户端投递数据
+                                "post": {'user_id': this.user_id, 'message': this.message},//post数据
+                                // "get": {'test_get': 'test'},//get数据
+                                // "cookie": [],//cookie数据
+                            }
+                        });
+                        setTimeout(function(){
+                            $('#scrollbar-bottom').scrollTop(99999999999);
+                        },50);
+                    }
+                    this.message = '';
+                }
+            }
+        });
+    client = WsClient({
+        host: "{$_request->host(true)}",
+        port: 9501,
+        endpoint: '',
+    });
+    client.connect();
+    client.on('index', function (data) {
+       // console.log(data);
+        app.user_id = data.my_id;
+        app.message_id = data.message_id;
+        app.nickname = data.nickname;
+        // app.messages.push(data.message);
+    });
+    client.on('message', function (data) {
+
+        app.messages.push(data.data);
+        setTimeout(function(){
+            $('#scrollbar-bottom').scrollTop(9999999999);
+        },50);
+
+    });
+    client.on('user_info', function (data) {
+        //console.log(data);
+        app.count= data.count;
+        app.users= data.user;
+    });
+    // client.emit('portal/ws/index', "data");
+
+</script>
+</body>
+</html>
