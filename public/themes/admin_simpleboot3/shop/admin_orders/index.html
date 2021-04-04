@@ -1,0 +1,186 @@
+<include file="public@header"/>
+<style type="text/css">
+    .product-img {
+        max-width: 100px;
+    }
+</style>
+<body>
+<div class="wrap js-check-wrap">
+    <form class="well form-inline margin-top-20" method="GET" action="{:url('AdminOrders/index')}">
+        <div class="row">
+            <div class="col-md-5">
+                订单搜索:
+                <select name="search_key" id="searchBox" class="form-control">
+                    <option value="tid" <if condition="$search_key eq 'tid'">selected</if>>订单号</option>
+                    <option value="goods_name" <if condition="$search_key eq 'goods_name'">selected</if>>商品名称</option>
+                    <option value="mobile" <if condition="$search_key eq 'mobile'">selected</if>>手机号</option>
+                    <option value="xxx" <if condition="$search_key eq 'xxx'">selected</if>>获客人</option>
+                    <option value="transaction_id" <if condition="$search_key eq 'transaction_id'">selected</if>>支付流水号</option>
+                    <option value="realname" <if condition="$search_key eq 'realname'">selected</if>>真实姓名</option>
+                    <option value="identify" <if condition="$search_key eq 'identify'">selected</if>>身份证号</option>
+                </select>
+                <input type="text" class="form-control" id="searchValue" name="search_value" style="width: 200px;" value="{$search_value|default=''}" placeholder="请输入订单编号">
+            </div>
+            <div class="col-md-3">
+                <input type="submit" class="btn btn-primary" value="搜索"/>
+                <a class="btn btn-danger" href="{:url('AdminOrders/index')}">清空</a>
+                <a class="btn btn-info" href="{:url('AdminOrders/export', array('params' => $exports))}">导出</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                订单类型:
+                <select name="order_type" class="form-control">
+                    <option value="0">全部</option>
+                    <option value="10" <if condition="$order_type eq 10">selected</if>>普通</option>
+                    <option value="20" <if condition="$order_type eq 20">selected</if>>拼团</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                慢必赔:
+                <select name="manbipei" class="form-control">
+                    <option value="">全部</option>
+                    <option value="you" <if condition="$manbipei eq 'you'">selected</if>>有购买</option>
+                    <option value="wu" <if condition="$manbipei eq 'wu'">selected</if>>无购买</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                订单状态:
+                <select name="some_state" class="form-control">
+                    <option value="0">全部</option>
+                    <option value="1000" <if condition="$some_state eq 1000">selected</if>>待付款</option>
+                    <option value="2000" <if condition="$some_state eq 2000">selected</if>>待成团</option>
+                    <option value="3000" <if condition="$some_state eq 3000">selected</if>>已完成</option>
+                    <option value="4000" <if condition="$some_state eq 4000">selected</if>>关闭</option>
+                    <option value="5000" <if condition="$some_state eq 5000">selected</if>>已退款</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                下单时间:
+                <input class="form-control js-bootstrap-date" type="text" name="start_time" value="{$start_time}" placeholder="开始日期">
+                <input class="form-control js-bootstrap-date" type="text" name="end_time" value="{$end_time}" placeholder="结束日期">
+            </div>
+        </div>
+    </form>
+    <php> /** </php>
+    <ul class="nav nav-tabs">
+        <li <if condition="$status eq 'all'">class="active"</if>><a href="{:url('AdminOrders/index', array('status' => 'all'))}">全部</a></li>
+        <foreach name="pay_status_map" item="item" key="key">
+            <li <if condition="$status eq $key">class="active"</if>><a href="{:url('AdminOrders/index', array('status' => $key))}">{$item}</a></li>
+        </foreach>
+    </ul>
+    <php> */ </php>
+    <form class="js-ajax-form" action="" method="post">
+        <table class="table table-hover table-bordered table-list">
+            <thead>
+            <tr>
+                <th>订单号</th>
+                <th>订单类型</th>
+                <th>商品名称</th>
+                <th>规格</th>
+                <th>单价/数量</th>
+                <th>慢必赔</th>
+                <th>优惠金额</th>
+                <th>实收金额</th>
+                <th>购买人</th>
+                <th>手机号</th>
+                <th>真实姓名</th>
+                <th>身份证</th>
+                <th>订单状态</th>
+                <th>获客人</th>
+                <th>支付流水号</th>
+                <th>下单时间</th>
+                <th>成团时间</th>
+            </tr>
+            </thead>
+            <foreach name="orders" item="vo">
+                <tr>
+                    <td><a class="btn btn-xs" href="{:url('AdminOrders/edit',array('tid'=>$vo['tid']))}">{$vo.tid}</a></td>
+                    <td><if condition="!empty($vo['order_type'])">{$order_types[$vo.order_type]}</if></td>
+                    <td>
+                        <php>if($vo['active_id']>0){</php>
+                        {$vo.gpname}
+                        <php>}else{</php>
+                        {$vo.pname}
+                        <php>}</php>
+                    </td>
+                    <td>
+                        <php>$items = json_decode($vo['item_message'], true);</php>
+                        <foreach name="items" item="item">
+                            <php>if(!empty($item['goods_id'])){</php>
+                            <php>$path = explode(',',$item['path_text']);</php>
+                            <php>if(!empty($path[0])){echo $path[0];}</php> <php>if(!empty($path[1])){echo '，'.$path[1];}</php>
+                            <php>}</php>
+                        </foreach>
+                    </td>
+                    <td>{$vo.total_fee} / {$vo.num}件</td>
+                    <td>
+                        <foreach name="items" item="item">
+                            <php>if(empty($item['goods_id'])){</php>
+                                <php>if($item['name']=='manbipei'){</php>
+                                <php>echo '有';</php>
+                                <php>}</php>
+                            <php>}</php>
+                        </foreach>
+                    </td>
+                    <td>{$vo.coupon_price}</td>
+                    <td>{$vo.pay_price}</td>
+                    <td>{$vo.nick_name}</td>
+                    <td>{$vo.mobile}</td>
+                    <td>{$vo.realname}</td>
+                    <td>{$vo.identify}</td>
+                    <td><php>if($vo['status']==2){echo '已关闭';</php><php>}else{</php>{$pay_status_map[$vo.pay_status]}<php>}</php></td>
+                    <td><a class="btn btn-xs" href="{:url('AdminShopWxUser/index',array('search_key'=>'id','search_value'=>$vo['get_id']))}">{$vo.g_name}</a></td>
+                    <td>{$vo.transaction_id}</td>
+                    <td>{:date('Y-m-d H:i:s',$vo['create_time'])}</td>
+                    <td><if condition="!empty($vo['sharing_time'])">{:date('Y-m-d H:i:s',$vo['sharing_time'])}</if></td>
+                </tr>
+            </foreach>
+        </table>
+        <ul class="pagination">{$page|default=''}</ul>
+    </form>
+</div>
+<script src="__STATIC__/js/admin.js"></script>
+<script>
+    function reloadPage(win) {
+        win.location.reload();
+    }
+    $(function () {
+        $('.copy-btn').on('click', function() {
+            var url = $(this).data('jump-url');
+            const input = document.createElement('input');
+            document.body.appendChild(input);
+            input.setAttribute('value', url);
+            input.select();
+            if (document.execCommand('copy')) {
+                document.execCommand('copy');
+                alert('复制成功');
+            }
+            document.body.removeChild(input);
+        });
+
+        $('#searchBox').change(function(){
+            switch (this.value) {
+                case 'tid':
+                    $('#searchValue').attr('placeholder', '请输入订单编号');
+                    break;
+                case 'goods_name':
+                    $('#searchValue').attr('placeholder', '请输入商品名称');
+                    break;
+                case 'mobile':
+                    $('#searchValue').attr('placeholder', '请输入手机号');
+                    break;
+                case 'xxx':
+                    $('#searchValue').attr('placeholder', '请输入获客人');
+                    break;
+                case 'transaction_id':
+                    $('#searchValue').attr('placeholder', '请输入支付流水号');
+                    break;
+            }
+        });
+    });
+</script>
+</body>
+</html>

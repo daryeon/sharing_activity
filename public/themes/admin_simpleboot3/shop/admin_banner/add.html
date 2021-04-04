@@ -1,0 +1,123 @@
+<include file="public@header"/>
+<style type="text/css">
+    .pic-list li {
+        margin-bottom: 5px;
+    }
+    th {
+        width: 120px;
+    }
+</style>
+<script type="text/html" id="photos-item-tpl">
+    <li id="saved-image{id}">
+        <input id="photo-{id}" type="hidden" name="photo_urls[]" value="{filepath}">
+        <input class="form-control" id="photo-{id}-name" type="text" name="photo_names[]" value="{name}"
+               style="width: 200px;" title="图片名称">
+        <img id="photo-{id}-preview" src="{url}" style="height:36px;width: 36px;"
+             onclick="imagePreviewDialog(this.src);">
+        <a href="javascript:uploadOneImage('图片上传','#photo-{id}');">替换</a>
+        <a href="javascript:(function(){$('#saved-image{id}').remove();})();">移除</a>
+    </li>
+</script>
+<script type="text/html" id="files-item-tpl">
+    <li id="saved-file{id}">
+        <input id="file-{id}" type="hidden" name="file_urls[]" value="{filepath}">
+        <input class="form-control" id="file-{id}-name" type="text" name="file_names[]" value="{name}"
+               style="width: 200px;" title="文件名称">
+        <a id="file-{id}-preview" href="{preview_url}" target="_blank">下载</a>
+        <a href="javascript:uploadOne('文件上传','#file-{id}','file');">替换</a>
+        <a href="javascript:(function(){$('#saved-file{id}').remove();})();">移除</a>
+    </li>
+</script>
+</head>
+<body>
+<div class="wrap js-check-wrap">
+    <ul class="nav nav-tabs">
+        <li><a href="{:url('AdminBanner/index')}">所有Banner</a></li>
+        <li class="active"><a href="{:url('AdminBanner/add')}">添加Banner</a></li>
+    </ul>
+    <form action="{:url('AdminBanner/addPost')}" method="post" class="form-horizontal js-ajax-form margin-top-20">
+        <div class="row">
+            <div class="col-md-9">
+                <table class="table table-bordered">
+                    <tr>
+                        <th><span class="form-required">*</span>排序</th>
+                        <td><input required class="form-control" type="number" name="post[list_order]" id="list_order" value="{$listOrder}"></td>
+                    </tr>
+                    <tr>
+                        <th><span class="form-required">*</span>状态</th>
+                        <td>
+                            <select required name="post[status]">
+                                <option value="1">显示</option>
+                                <option value="0">隐藏</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><span class="form-required">*</span>Banner名称</th>
+                        <td>
+                            <input class="form-control" type="text" name="post[title]" id="title" required value="" placeholder="请输入仅用于内部，不对外展示"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><span class="form-required">*</span>展示图片（推荐尺寸：670*254）</th>
+                        <td class="form-inline">
+                            <input type="hidden" id="file-image" class="form-control" type="text" name="post[src]" value="{$post.src|default=''}" placeholder="请上传图片文件" style="width:200px;">
+                            <a class="btn btn-sm btn-default" href="javascript:uploadOneImage('图片上传','#file-image');">
+                                <img src="__TMPL__/public/assets/images/default-thumbnail.png" id="file-image-preview" width="135" style="cursor: pointer"/>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><span class="form-required">*</span>跳转方式</th>
+                        <td>
+                            <select id="jump_type" required name="post[jump_type]">
+                                <option value="1">跳转指定链接</option>
+                                <option value="0">不跳转</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><span class="form-required">*</span>跳转到</th>
+                        <td><input required class="form-control" type="text" name="post[jump_url]" id="jump_url" value=""></td>
+                    </tr>
+                </table>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-primary js-ajax-submit">{:lang('ADD')}</button>
+                        <a class="btn btn-default" href="{:url('AdminBanner/index')}">{:lang('BACK')}</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript" src="__STATIC__/js/admin.js"></script>
+<script type="text/javascript">
+    //编辑器路径定义
+    var editorURL = GV.WEB_ROOT;
+</script>
+<script type="text/javascript" src="__STATIC__/js/ueditor/ueditor.config.js"></script>
+<script type="text/javascript" src="__STATIC__/js/ueditor/ueditor.all.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+
+        editorcontent = new baidu.editor.ui.Editor();
+        editorcontent.render('content');
+        try {
+            editorcontent.sync();
+        } catch (err) {
+        }
+        $('#jump_type').on('change', function(event) {
+            var id = this.value;
+            if(id == 0){
+                $("#jump_url").val('');
+                $("#jump_url").attr('disabled','disabled');
+            }else{
+                $("#jump_url").removeAttr('disabled');
+            }
+        })
+    });
+</script>
+</body>
+</html>

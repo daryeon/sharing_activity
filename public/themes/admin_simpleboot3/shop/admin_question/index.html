@@ -1,0 +1,61 @@
+<include file="public@header"/>
+<style type="text/css">
+    .video-img {
+        max-width: 100px;
+    }
+</style>
+<body>
+<div class="wrap js-check-wrap">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="{:url('AdminQuestion/index')}">所有问题</a></li>
+        <li><a href="{:url('AdminQuestion/add')}">添加问题</a></li>
+    </ul>
+    <form class="well form-inline margin-top-20" method="GET" action="{:url('AdminQuestion/index')}">
+        问题名称:
+        <input type="text" class="form-control" name="keyword" style="width: 200px;"
+               value="{$keyword|default=''}" placeholder="请输入名称">
+        <input type="submit" class="btn btn-primary" value="搜索"/>
+        <a class="btn btn-danger" href="{:url('AdminQuestion/index')}">清空</a>
+    </form>
+    <form class="js-ajax-form" action="" method="post">
+        <table class="table table-hover table-bordered table-list">
+            <thead>
+            <tr>
+                <th>排序</th>
+                <th>状态</th>
+                <th>ID</th>
+                <th>展示的问题</th>
+                <th>答案链接</th>
+                <th>修改时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <foreach name="questions" item="vo">
+                <tr>
+                    <td>{$vo.list_order}</td>
+                    <td>{$status_text[$vo.status]}</td>
+                    <td>{$vo.id}</td>
+                    <td>{$vo.title}</td>
+                    <td>{$vo.href}</td>
+                    <td>
+                        {:date('Y-m-d H:i',$vo['update_time'])}
+                    </td>
+                    <td>
+                        <a class="btn btn-xs btn-primary" href="{:url('AdminQuestion/edit',array('id'=>$vo['id']))}">{:lang('EDIT')}</a>
+                        <a class="btn btn-xs btn-danger js-ajax-delete"
+                           href="{:url('AdminQuestion/delete',array('id'=>$vo['id']))}">{:lang('DELETE')}</a>
+                    </td>
+                </tr>
+            </foreach>
+        </table>
+        <ul class="pagination">{$page|default=''}</ul>
+    </form>
+</div>
+<script src="__STATIC__/js/admin.js"></script>
+<script>
+    function reloadPage(win) {
+        win.location.reload();
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<include file="public@header"/>
+<style type="text/css">
+    .pic-list li {
+        margin-bottom: 5px;
+    }
+</style>
+</head>
+<body>
+<div class="wrap js-check-wrap">
+    <div class="row">
+        <form action="{:url('AdminOrders/save')}" method="post" class="form-horizontal js-ajax-form margin-top-20 col-md-10">
+            <table class="table table-bordered">
+                <tr>
+                    <th><span class="form-required">*</span>姓名</th>
+                    <td>
+                        {$user_info.nick_name}
+                    </td>
+                </tr>
+                <tr>
+                    <th><span class="form-required">*</span>手机</th>
+                    <td>{$user_info.mobile}</td>
+                </tr>
+                <tr>
+                    <th><span class="form-required">*</span>操作人</th>
+                    <td>{$data.operator}</td>
+                </tr>
+                <tr>
+                    <th><span class="form-required">*</span>行为</th>
+                    <td>{$data.act}</td>
+                </tr>
+                <tr>
+                    <th><span class="form-required">*</span>参数</th>
+                    <td>
+                        <textarea rows="20" cols="100">{$data.data}</textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th><span class="form-required">*</span>操作时间</th>
+                    <td>{:date('Y-m-d H:i:s', $data.create_time)}</td>
+                </tr>
+            </table>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <a class="btn btn-default" href="javascript:history.back(-1);">{:lang('BACK')}</a>
+                </div>
+            </div>
+        </form>
+    </div>
+<script type="text/javascript" src="__STATIC__/js/admin.js"></script>
+<script type="text/javascript">
+    //编辑器路径定义
+    var editorURL = GV.WEB_ROOT;
+</script>
+<script type="text/javascript" src="__STATIC__/js/ueditor/ueditor.config.js"></script>
+<script type="text/javascript" src="__STATIC__/js/ueditor/ueditor.all.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<include file="public@header"/>
+<style type="text/css">
+    .product-img {
+        max-width: 100px;
+    }
+</style>
+<body>
+<div class="wrap js-check-wrap">
+    <form class="well form-inline margin-top-20" method="GET" action="{:url('AdminPayOperate/index')}">
+        手机号:
+        <input type="text" class="form-control" name="mobile" style="width: 200px;" value="{$mobile|default=''}" placeholder="请输入手机号">
+        <input type="submit" class="btn btn-primary" value="搜索"/>
+        <a class="btn btn-danger" href="{:url('AdminPayOperate/index')}">清空</a>
+    </form>
+    <form class="js-ajax-form" action="" method="post">
+        <table class="table table-hover table-bordered table-list">
+            <thead>
+            <tr>
+                <th>姓名</th>
+                <th>手机</th>
+                <th>行为</th>
+                <th>操作人</th>
+                <th>操作时间	</th>
+                <th>操作详情</th>
+            </tr>
+            </thead>
+            <foreach name="data" item="vo">
+                <tr>
+                    <td>{$vo.nick_name}</td>
+                    <td>{$vo.mobile}</td>
+                    <td>{$vo.act}</td>
+                    <td>{$vo.operator}</td>
+                    <td><if condition="!empty($vo['create_time'])">{:date('Y-m-d H:i:s',$vo['create_time'])}</if></td>
+                    <td>
+                        <a class="btn btn-xs btn-primary" href="{:url('AdminPayOperate/view',array('id'=>$vo['id']))}">{:lang('查看')}</a>
+                    </td>
+                </tr>
+            </foreach>
+        </table>
+        <ul class="pagination">{$page|default=''}</ul>
+    </form>
+</div>
+<script src="__STATIC__/js/admin.js"></script>
+<script>
+    function reloadPage(win) {
+        win.location.reload();
+    }
+    $(function () {
+        $('.copy-btn').on('click', function() {
+            var url = $(this).data('jump-url');
+            const input = document.createElement('input');
+            document.body.appendChild(input);
+            input.setAttribute('value', url);
+            input.select();
+            if (document.execCommand('copy')) {
+                document.execCommand('copy');
+                alert('复制成功');
+            }
+            document.body.removeChild(input);
+        })
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<include file="public@header"/>
+<style type="text/css">
+    .pic-list li {
+        margin-bottom: 5px;
+    }
+    .col-md-3{
+        margin-bottom:5px;
+    }
+    .bs-example{
+        margin-right: 0;
+        margin-left: 0;
+        background-color: #fff;
+        border-color: #ddd;
+        border-width: 1px;
+        border-radius: 4px 4px 0 0;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+    }
+</style>
+</head>
+<body>
+<div class="wrap js-check-wrap" style="margin-left:30px;">
+    <div class="row" style="margin-top:50px;">
+        <div class="col-md-3">订单号：{$data.tid}</div>
+        <div class="col-md-3">下单时间：{:date('Y-m-d H:i:s', $data.create_time)}</div>
+        <div class="col-md-3">订单类型：{$order_types[$data.order_type]}</div>
+        <div class="col-md-3">获客人：<php>if($data['get_id']>0){</php><a href="{:url('AdminShopWxUser/index', array('search_key' => 'id','search_value' => $data.get_id))}">{$data.g_name}</a><php>}</php></div>
+    </div>
+    <div class="row" style="margin-top:50px;">
+        <div class="col-md-12 bs-example" style="padding-left: 30px;border: 1px solid #ddd;margin: 10px;">
+            <p class="lead">
+                <h2>{$status_text}</h2>
+            </php>
+            <p class="lead" style="font-size:14px;">{$status_remarks}</p>
+            <php>if($status_remarks == '拼团关闭：退款失败，订单未关闭。'){</php>
+            <a class="btn btn-xs btn-primary js-ajax-delete" href="{:url('AdminOrders/refund',array('tid'=>$data.tid))}" data-msg="退款成功金额将原路返回，确定退款？">{:lang('发起退款')}</a>
+            <php>}elseif($data['pay_status'] == 'BUYER_IS_PAY' && $data['refund_state'] == 'REFUND_FAIL'){</php>
+            <a class="btn btn-xs btn-primary js-ajax-delete" href="{:url('AdminOrders/refund',array('tid'=>$data.tid))}" data-msg="退款成功金额将原路返回，确定退款？">{:lang('发起退款')}</a>
+            <php>}</php>
+            <php>if($status_remarks == '订单已完成，客户进入学车流程。'){</php>
+            <a class="btn btn-xs btn-primary js-ajax-delete" href="{:url('AdminOrders/repush',array('tid'=>$data.tid))}" data-msg="是否重新发起订单同步？">{:lang('发起同步')}</a>
+            <php>}</php>
+        </div>
+    </div>
+    <div class="row" style="margin-top:50px;">
+        <div class="col-md-3">商品信息</div>
+        <div class="col-md-3">买家信息</div>
+        <div class="col-md-3">活动信息</div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div style="display: flex;">
+                <img src="{$goods.main_cover_src}" alt="" style="width: 90px;height:90px;">
+                &nbsp;&nbsp;
+                <span>
+                    <span><a href="{:url('AdminProduct/edit', array('id' => $jump))}"><php>if($data['active_id']>0&&!empty($data['gpname'])){echo $data['gpname'];}else{echo $data['pname'];}</php></a></span>
+                    <span class="row">
+                        规格：
+                        <foreach name="items" item="item" key="key">
+                            <php>if($key>0){echo ',';}</php>
+                            {$item.sku_title}&nbsp;&nbsp;
+                        </foreach>
+                    </span>
+                </span>
+            </div>
+
+        </div>
+        <div class="col-md-3">
+            <div>昵&nbsp;&nbsp;&nbsp;称：{$data.nick_name}</div>
+            <div>手机号：{$data.mobile}</div>
+        </div>
+        <div class="col-md-3">
+            <div>类型：{$order_types[$data.order_type]}</div>
+            <div>名称：<php>if($data['active_id']>0){</php><a href="{:url('AdminGroupActivity/edit', array('id' => $data.activity_id))}">{$data.activity_name}</a><php>}</php></div>
+            <div>团队：<php>if($data['active_id']>0){</php><a href="{:url('AdminSharing/index', array('search_key' => 'active_id', 'search_value' => $data.active_id))}">{$data.active_id}</a><php>}</php></div>
+        </div>
+    </div>
+    <hr>
+    <div class="row" style="margin-top:50px">
+        <div class="col-md-3">付款信息</div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div>付款方式：{$pay_type_map[$data.pay_type]}</div>
+            <div>付款时间：<if condition="!empty($data.pay_time)">{:date('Y-m-d H:i:s', $data['pay_time'])}</if></div>
+        </div>
+        <div class="col-md-6">
+            <div>商品总价: ￥{$data.total_fee}</div>
+            <div>优惠: -￥<php>if($data['coupon_id']>0&&$data['order_type']==10){echo $data['coupon_price'] ;}else{echo '0.00';}</php> <if condition="$data.coupon_id != 0 && $data.order_type == 10">&nbsp;&nbsp;<i class="fa fa-exclamation-circle" style="color: rgb(103,192,238);" aria-hidden="true" data-toggle="modal" data-target="#myModal"></i></if></div>
+            <div style="font-size:25px;color:rgb(236,128,133);">实收金额: ￥{$data.pay_price}</div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">优惠券信息</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-hover table-bordered table-list">
+                    <thead>
+                    <tr>
+                        <th>优惠类型</th>
+                        <th>名称</th>
+                        <th>金额</th>
+                    </tr>
+                    </thead>
+                    <tr>
+                        <td>普通</td>
+                        <td>{$data.coupon_name}</td>
+                        <td>{$data.coupon_amount}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="__STATIC__/js/admin.js"></script>
+<script type="text/javascript">
+    //编辑器路径定义
+    var editorURL = GV.WEB_ROOT;
+</script>
+<script type="text/javascript" src="__STATIC__/js/ueditor/ueditor.config.js"></script>
+<script type="text/javascript" src="__STATIC__/js/ueditor/ueditor.all.min.js"></script>
+<script type="text/javascript">
+
+</script>
+</body>
+</html>
